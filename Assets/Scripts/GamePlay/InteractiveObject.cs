@@ -6,9 +6,10 @@ using UnityEngine;
 public class InteractiveObject : MonoBehaviour
 {
     [SerializeField]private bool isKeepable;
-    [SerializeField] private int id;
+    [SerializeField] private bool isTargetPosition;
+    [SerializeField]private int id;
 
-    private bool isActive = true;
+    private bool isInteracted = false;
 
     public int getId()
     {
@@ -17,8 +18,18 @@ public class InteractiveObject : MonoBehaviour
 
     public bool checkIsKeepable()
     {
+        if (isInteracted) return false;
         return isKeepable;
     }
 
+    public bool checkIsTargetPosition()
+    {
+        return isTargetPosition;
+    }
+
+    public void Interact()
+    {
+        isInteracted = true;
+    }
     
 }

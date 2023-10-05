@@ -63,8 +63,22 @@ public class CameraController : MonoBehaviour
                     {
                         Debug.Log("KE");
                         Inventory.InvenInstance().AddObject(hit.collider.gameObject); 
+                        Destroy(hit.collider.gameObject);
                     }
-                    hit.collider.gameObject.SetActive(false);
+                    else if (io.checkIsTargetPosition())
+                    {
+                        GameObject targetItem = Inventory.InvenInstance().PutObject(io.getId());
+                        if (!object.ReferenceEquals(targetItem, null))
+                        {
+                            targetItem.transform.position = io.transform.position;
+                            targetItem.TryGetComponent(out InteractiveObject ioTemp);
+                            ioTemp.Interact();
+                        }
+                    }
+                    else
+                    {
+                        Destroy(hit.collider.gameObject);
+                    }
                 }
                 
             }
