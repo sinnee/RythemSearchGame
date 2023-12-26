@@ -8,6 +8,15 @@
 ## 개발 기간
 - 2023 / 05 ~
 
+## 역할 분담
+### 개발 인원 : 3명
+| 이름 | 개인 깃허브 | 담당 역할 및 기능 |
+| ------ | ---------- | ------ |
+| 김성신 | https://github.com/sinnee | 프로그래밍(툴개발), PM |
+| 김명준 | https://github.com/mj991004 | 프로그래밍(게임 로직 개발), PD |
+| 정혜선 |  https://github.com/HyeSunJeong | 기획, 디자인 |
+<br/>
+
 ## 기술 스택
 <img src="https://img.shields.io/badge/Unity-FFFFFF?style=for-the-badge&logo=Unity&logoColor=black">
 
