@@ -14,6 +14,7 @@
 | ------ | ---------- | ------ |
 | 김성신 | https://github.com/sinnee | 프로그래밍(툴개발), PM |
 | 김명준 | https://github.com/mj991004 | 프로그래밍(게임 로직 개발), PD |
+| 박민호 | https://github.com/HEILAIPPAPPA | 프로그래밍(게임 로직 개발) |
 | 정혜선 |  https://github.com/HyeSunJeong | 기획, 디자인 |
 <br/>
 
