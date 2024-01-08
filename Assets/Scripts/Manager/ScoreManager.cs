@@ -9,24 +9,27 @@ public class ScoreManager : MonoBehaviour
     /// 점수 기록 / 점수 관리 / 현재 점수 리턴 / 특정 점수에 이벤트 트리거
     /// PlayerPref 사용해 점수 저장
     /// </summary>
-    private const string ScoreKey = "Score";
-    private int currentScore = 0;
 
-    void Start()
+
+    private int score = 0;
+
+
+    public void IncreaseScore(int amount)
     {
-        //LoadScore();
+        score += amount;
     }
 
-    public void AddScore(int points)
+    public void DecreaseScore(int amount)
     {
-        currentScore += points;
-        SaveScore();
+        score -= amount;
+        if(score < 0)
+        {
+            score = 0;
+        }
     }
 
-    private void SaveScore()
+    public int GetScore()
     {
-        PlayerPrefs.SetInt(ScoreKey, currentScore);
-        PlayerPrefs.Save();
+        return score;
     }
-
 }
