@@ -4,18 +4,17 @@ using UnityEngine;
 
 public class InstrumentManager : MonoBehaviour
 {
+    /// <summary>
+    /// 씬에 존재하는 악기를 선택할 경우, Play 상태값을 입력
+    /// 악기를 일정 이상 연주하면 Finale 상태값을 입력
+    /// 연주 완료하면 Finish 상태값을 입력
+    /// </summary>
     private Dictionary<string, InstrumentState> instrumentStates = new Dictionary<string, InstrumentState>();
 
     private void Awake()
     {
         
-
-
     }
-
-
-
-
 
     /// <summary>
     /// 악기 이름 / 원하는 악기 상태 입력. 
