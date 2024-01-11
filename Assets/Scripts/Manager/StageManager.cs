@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class StageManager : MonoBehaviour
 {
@@ -10,15 +11,48 @@ public class StageManager : MonoBehaviour
     /// </summary>
     private Dictionary<string, int> highestScores = new Dictionary<string, int>();
 
-    void Start()
+    public void SetHighScore(string stageName, int score)
     {
-        
+        if(highestScores.ContainsKey(stageName)) 
+        {
+            if(score > highestScores[stageName])
+            {
+                highestScores[stageName] = score;
+            }
+        }
+        else
+        {
+            highestScores.Add(stageName, score);
+        }
+
+        SaveData();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void GetHighScore(string stageName)
     {
-        
+        if(highestScores.ContainsKey(stageName))
+        {
+            return highestScores[stageName];
+        }
+        else
+        {
+            return 0;
+        }
     }
 
+    private void SaveData()
+    {
+        string json = JsonUtility.ToJson(this);
+        File.WriteAllText(Application.persistentDataPath + "\stageData.json", json);
+    }
+
+    private void LoadData()
+    {
+        string path = Application.persistentDataPath + "/stageData.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            JsonUtility.FromJsonOverwrite(json, this);
+        }
+    }
 }
