@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-[System.Serializable]
-public class HighScoreData
-{
-    private Dictionary<string, int> highestScores = new Dictionary<string, int>();
-}
 public class StageManager : MonoBehaviour
 {
     /// <summary>
@@ -15,14 +10,13 @@ public class StageManager : MonoBehaviour
     /// 최고점수, 클리어 상황 등등
     /// </summary>
     /// 
-    private HighScoreData highScoreData = new HighScoreData();
-    
+    private Dictionary<string, int> highestScores = new Dictionary<string, int>();
 
     public void SetHighScore(string stageName, int score)
     {
-        if(highestScores.ContainsKey(stageName)) 
+        if (highestScores.ContainsKey(stageName))
         {
-            if(score > highestScores[stageName])
+            if (score > highestScores[stageName])
             {
                 highestScores[stageName] = score;
             }
@@ -37,7 +31,7 @@ public class StageManager : MonoBehaviour
 
     public int GetHighScore(string stageName)
     {
-        if(highestScores.ContainsKey(stageName))
+        if (highestScores.ContainsKey(stageName))
         {
             return highestScores[stageName];
         }
@@ -50,17 +44,16 @@ public class StageManager : MonoBehaviour
     private void SaveData()
     {
         string json = JsonUtility.ToJson(this);
-        string filePath = Path.Combine(Application.persistentDataPath, "stageData.json");
-        File.WriteAllText(filePath, json);
+        File.WriteAllText(Application.persistentDataPath + "/stageData.json", json);
     }
 
     private void LoadData()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "stageData.json");
-        if (File.Exists(filePath))
+        string path = Application.persistentDataPath + "/stageData.json";
+        if (File.Exists(path))
         {
-            string json = File.ReadAllText(filePath);
-            highScoreData = JsonUtility.FromJson<HighScoreData>(json);
+            string json = File.ReadAllText(path);
+            JsonUtility.FromJsonOverwrite(json, this);
         }
     }
 }
