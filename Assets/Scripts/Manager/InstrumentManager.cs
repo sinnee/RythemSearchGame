@@ -52,4 +52,25 @@ public class InstrumentManager : MonoBehaviour
             return InstrumentState.Play;
         }
     }
+
+
+    /// <summary>
+    /// 특정 Key값을 가진 악기의 개수를 리턴해 진행상황 표현에 사용
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
+    public int GetInstrumentStateCount(InstrumentState state)
+    {
+        int count = 0;
+
+        foreach(var k in instrumentStates)
+        {
+            if(k.Value == state)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }
