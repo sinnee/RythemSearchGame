@@ -5,6 +5,7 @@ using UnityEngine;
 public class InstrumentManager : MonoBehaviour
 {
     /// <summary>
+    /// 씬 시작시 모든 악기에 Normal 상태값 입력
     /// 씬에 존재하는 악기를 선택할 경우, Play 상태값을 입력
     /// 악기를 일정 이상 연주하면 Finale 상태값을 입력
     /// 연주 완료하면 Finish 상태값을 입력
