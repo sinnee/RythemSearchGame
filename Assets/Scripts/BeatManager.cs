@@ -146,10 +146,6 @@ public class BeatManager : MonoBehaviour
         //input check
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //Debug.Log($"judge N : {judgeIndex} beat"); 
-            
-            
-            //chickenFeetImage.DOColor(Color.green, 0.5f).From();
             judgeLineBeatBar.transform.DOScale(1.5f, 0.5f).From();
             
             float timingDifference = Mathf.Abs(currentTime - instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1);
@@ -157,22 +153,22 @@ public class BeatManager : MonoBehaviour
             if (timingDifference <= PERFECT_RANGE) //perfect 타이밍
             {
                 Debug.Log("Perfect!");
-                AddScore(PERFECT_SCORE);
+                GameManager.Instance.scoreManager.AddScore(PERFECT_SCORE);
             }
             else if (timingDifference <= NORMAL_RANGE) //normal 타이밍
             {
                 Debug.Log("normal!");
-                AddScore(NORMAL_SCORE);
+                GameManager.Instance.scoreManager.AddScore(NORMAL_SCORE);
             }
             else if (timingDifference <= BAD_RANGE) //bad 타이밍
             {
                 Debug.Log("bad!");
-                AddScore(BAD_SCORE);
+                GameManager.Instance.scoreManager.AddScore(BAD_SCORE);
             }
             else if(timingDifference<= MISS_RANGE)//Miss 타이밍
             {
                 Debug.Log("Miss!");
-                AddScore(MISS_SCORE);
+                GameManager.Instance.scoreManager.AddScore(MISS_SCORE);
             }
             else//NOTHING 타이밍, 버튼 클리 시 판정 영역에 도달조차 안한 단계 
             {
