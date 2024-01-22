@@ -10,9 +10,14 @@ using UnityEngine.Serialization;
 
 public class BeatManager : MonoBehaviour
 {
-    public float perfectRange= 0.1f;
-    public float normalRange=0.2f;
-    public float badRange=0.5f;
+    private readonly int PERFECT_SCORE=10;
+    private readonly int NORMAL_SCORE = 5;
+    private readonly int BAD_SCORE = 1;
+    private readonly int MISS_SCORE = 0;
+    private readonly float PERFECT_RANGE= 0.1f;
+    private readonly float NORMAL_RANGE=0.2f;
+    private readonly float BAD_RANGE=0.5f;
+    private readonly float MISS_RANGE=1f;
 
     public GameObject judgeLineBeatBar;
     public Transform beatBarPoolInCanvas;
@@ -33,6 +38,7 @@ public class BeatManager : MonoBehaviour
     private float startJudgeDistance;
     private float judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
+    private bool isNothing=false;
 
     private int playingIndex;
     public int PlayingIndex
@@ -140,7 +146,7 @@ public class BeatManager : MonoBehaviour
         //input check
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //Debug.Log($"judge N : {judgeIndex} beat");
+            //Debug.Log($"judge N : {judgeIndex} beat"); 
             
             
             //chickenFeetImage.DOColor(Color.green, 0.5f).From();
@@ -148,27 +154,42 @@ public class BeatManager : MonoBehaviour
             
             float timingDifference = Mathf.Abs(currentTime - instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1);
 
-            if (timingDifference <= perfectRange)
+            if (timingDifference <= PERFECT_RANGE) //perfect 타이밍
             {
                 Debug.Log("Perfect!");
+                AddScore(PERFECT_SCORE);
             }
-            else if (timingDifference <= normalRange)
+            else if (timingDifference <= NORMAL_RANGE) //normal 타이밍
             {
                 Debug.Log("normal!");
+                AddScore(NORMAL_SCORE);
             }
-            else if (timingDifference <= badRange)
+            else if (timingDifference <= BAD_RANGE) //bad 타이밍
             {
                 Debug.Log("bad!");
+                AddScore(BAD_SCORE);
             }
-            else
+            else if(timingDifference<= MISS_RANGE)//Miss 타이밍
             {
                 Debug.Log("Miss!");
+                AddScore(MISS_SCORE);
             }
-            removeBeatBar();
-            JudgeIndex++;
+            else//NOTHING 타이밍, 버튼 클리 시 판정 영역에 도달조차 안한 단계 
+            {
+                Debug.Log("Nothing");
+                isNothing = true;
+            }
+
+            if (!isNothing)
+            {
+                removeBeatBar();
+                JudgeIndex++;
+                isNothing = false;
+            }
+
         }
         //fail check
-        else if(currentTime > instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1+badRange)
+        else if(currentTime > instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1+BAD_RANGE)
         {
             Debug.Log($"judge index : {judgeIndex}\n current time : {currentTime}");
             Debug.Log("fail!");
@@ -177,7 +198,7 @@ public class BeatManager : MonoBehaviour
         }
         
         //score reset
-        if (currentTime>instContrlArray[selectedInstIndex].instrumentBeatList[PlayingIndex].Item1+badRange)
+        if (currentTime>instContrlArray[selectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
         {
             playingIndex = 0; judgeIndex = 0; currentTime =0;
             currentTime-=beatMoveDuration;
@@ -187,25 +208,21 @@ public class BeatManager : MonoBehaviour
         currentTime += Time.deltaTime;
     }
     
-    
-
-
+    #region BeatBarPool
     void CreateBeatBar()
     {
         GameObject beatBar=GetBeatBarFromPool(initBeatBarPostion);
         
         var tween = beatBar.transform.DOMove(judgeLine, beatMoveDuration).SetEase(Ease.Linear)
-        .OnComplete(() =>
-        {
-            beatBar.transform.DOMove(endLine, ((judgeEndDistance*beatMoveDuration)/startJudgeDistance)).SetEase(Ease.Linear);
-        });
+            .OnComplete(() =>
+            {
+                beatBar.transform.DOMove(endLine, ((judgeEndDistance*beatMoveDuration)/startJudgeDistance)).SetEase(Ease.Linear);
+            });
 
         beatBarQueue.Enqueue(beatBar);
         PlayingIndex++;
-        
         return;
     }
-
     void removeBeatBar()
     {
         try
@@ -229,7 +246,6 @@ public class BeatManager : MonoBehaviour
                 beatBar.transform.position = position;
                 beatBar.SetActive(true);
                 
-                
                 return beatBar;
             }
         }
@@ -246,6 +262,11 @@ public class BeatManager : MonoBehaviour
     {
         Debug.Log($"{beatBar.name} is return to pool");
         beatBar.SetActive(false);
+    }
+    #endregion
+    
+    private void AddScore(int score)
+    {
         
     }
 }
