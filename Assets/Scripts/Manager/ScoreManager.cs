@@ -11,7 +11,7 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
 
 
-    private int score = 0;
+    private int score;
 
     public void InitializeScore()
     {

@@ -5,6 +5,45 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private static GameManager _instance;
+    
+    public ScoreManager scoreManager;
+    public StageManager stageManager;
+    public InstrumentManager instrumentManager;
+
+    public static GameManager Instance
+    {
+        get
+        {
+            if(_instance == null)
+            {
+                var obj = FindObjectOfType<GameManager>();
+                if (obj != null)
+                {
+                    _instance = obj;
+                }
+                else
+                {
+                    var newObj = new GameObject().AddComponent<GameManager>();
+                }
+            }
+            return _instance;
+        }
+    }
+
+    private void Awake()
+    {
+        var objs = FindObjectsOfType<GameManager>();
+        if (objs.Length != 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        DontDestroyOnLoad(gameObject);
+    }
+
+
+
     public Ease testEase;
     
     [SerializeField] float dragSpeed = 10.0f;   // 화면 움직임 속도
