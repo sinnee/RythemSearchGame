@@ -145,7 +145,8 @@ public class BeatMakerWindow : EditorWindow
 					if (EditorGUI.EndChangeCheck())
 					{
 
-						_buttonNumber = _noteScore.Scale();
+						//_buttonNumber = _noteScore.Scale();
+						_buttonNumber = 12;
 						Debug.Log(_dropDownOptionList[_noteScore.selectedIndex]);
 					}
 				}

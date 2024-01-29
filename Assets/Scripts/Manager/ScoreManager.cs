@@ -17,15 +17,10 @@ public class ScoreManager : MonoBehaviour
     {
         score = 0;
     }
-
-    public void IncreaseScore(int amount)
+    
+    public void AddScore(int amount)
     {
         score += amount;
-    }
-
-    public void DecreaseScore(int amount)
-    {
-        score -= amount;
         if(score < 0)
         {
             score = 0;
