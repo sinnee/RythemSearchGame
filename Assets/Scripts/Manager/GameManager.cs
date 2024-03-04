@@ -7,24 +7,21 @@ using UnityEngine.Serialization;
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
-private Vector3 firstClickPoint;
-    
+    private Vector3 firstClickPoint;
+
     public ScoreManager scoreManager;
     public StageManager stageManager;
     public InstrumentManager instrumentManager;
-public float dragSpeed = 10.0f;   // 화면 움직임 속도
-public Ease cameraMoveEase;
-public BeatManager beatManager; 
+    public float dragSpeed = 10.0f; // 화면 움직임 속도
+    public Ease cameraMoveEase;
+    public BeatManager beatManager;
 
-
-
-    
 
     public static GameManager Instance
     {
         get
         {
-            if(_instance == null)
+            if (_instance == null)
             {
                 var obj = FindObjectOfType<GameManager>();
                 if (obj != null)
@@ -36,18 +33,23 @@ public BeatManager beatManager;
                     var newObj = new GameObject().AddComponent<GameManager>();
                 }
             }
+
             return _instance;
         }
     }
 
     private void Awake()
     {
+        scoreManager = new ScoreManager();
+        
+        
         var objs = FindObjectsOfType<GameManager>();
         if (objs.Length != 1)
         {
             Destroy(gameObject);
             return;
         }
+
         DontDestroyOnLoad(gameObject);
     }
 
@@ -62,8 +64,8 @@ public BeatManager beatManager;
             if (Physics.Raycast(ray, out hit))
             {
                 Debug.Log("hit");
-                beatManager.selectedInstIndex=hit.transform.gameObject.GetComponent<InstrumentController>().index;
-                Camera.main.transform.DOMove(hit.transform.position + Vector3.back*10,1.0f).SetEase(cameraMoveEase);
+                beatManager.SelectedInstIndex = hit.transform.gameObject.GetComponent<InstrumentController>().index;
+                Camera.main.transform.DOMove(hit.transform.position + Vector3.back * 10, 1.0f).SetEase(cameraMoveEase);
             }
 
             firstClickPoint = Camera.main.ScreenToViewportPoint(Input.mousePosition);

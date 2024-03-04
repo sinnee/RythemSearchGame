@@ -28,7 +28,7 @@ public class BeatManager : MonoBehaviour
     public RectTransform uiRectTransform;
     public float leftMargin;
     public float beatMoveDuration;
-    public int selectedInstIndex;
+    public NoteScore noteScore;
 
     private InstrumentController[] instContrlArray;
     
@@ -39,19 +39,32 @@ public class BeatManager : MonoBehaviour
     private float judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
     private bool isNothing=false;
+    
+    
+
+
+
+    private int selectedInstIndex;
+    public int SelectedInstIndex
+    {
+        get => selectedInstIndex;
+        set
+        {
+            ReturnAllBeatBarToPool();
+            selectedInstIndex = value;
+        }
+    }
 
     private int playingIndex;
     public int PlayingIndex
     {
-        get
-        {
-            return playingIndex;
-        }
+        get => playingIndex;
         set
         {
-            if (value>instContrlArray[0].instrumentBeatList.Count-1)
+            if (value>instContrlArray[SelectedInstIndex].instrumentBeatList.Count-1)
             {
-                playingIndex = instContrlArray[0].instrumentBeatList.Count-1;
+                //초기화가 될 때까지 마지막 index 유지
+                playingIndex = instContrlArray[SelectedInstIndex].instrumentBeatList.Count-1;
                 isPlayingFinish = true;
             }
             else
@@ -81,9 +94,12 @@ public class BeatManager : MonoBehaviour
         }
     }
     float currentTime;
-    bool isPlayingFinish = false;
+    bool isPlayingFinish;
+    
     void Start()
     {
+        noteScore.MakeInstruments();
+        
         //pool init
         _beatBarPool = new List<GameObject>();
         for (int i = 0; i < poolSize; i++)
@@ -96,7 +112,7 @@ public class BeatManager : MonoBehaviour
         }
         
         //inst init
-        selectedInstIndex = 999;
+        SelectedInstIndex = 999;
         taggedObjects = GameObject.FindGameObjectsWithTag("Instrument");
         instContrlArray = new InstrumentController[taggedObjects.Length];
         for (int i = 0; i < taggedObjects.Length; i++)
@@ -119,12 +135,9 @@ public class BeatManager : MonoBehaviour
         
     }
 
-    
-    
-    // Update is called once per frame
     void Update()
     {
-        if (selectedInstIndex == 999)
+        if (SelectedInstIndex == 999)
         {
             return;
         }
@@ -135,8 +148,9 @@ public class BeatManager : MonoBehaviour
         
         
         
+        Debug.Log($"selectedInstIndex : {SelectedInstIndex} / playingIndex : {playingIndex}");
         //Create Beat!
-        if ((currentTime>=((instContrlArray[selectedInstIndex].instrumentBeatList[PlayingIndex].Item1)-beatMoveDuration))&&!isPlayingFinish)
+        if ((currentTime>=((instContrlArray[SelectedInstIndex].instrumentBeatList[PlayingIndex].Item1)-beatMoveDuration))&&!isPlayingFinish)
         {
             //Debug.Log($"real time is {currentTime} \nplayingIndex : {playingIndex} is playing when {instContrlArray[0].instrumentBeatList[PlayingIndex].Item1} ");
             CreateBeatBar();
@@ -146,9 +160,12 @@ public class BeatManager : MonoBehaviour
         //input check
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            judgeLineBeatBar.transform.DOScale(1.5f, 0.5f).From();
+            judgeLineBeatBar.transform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), 0.1f)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() => ResetButtonScale());
             
-            float timingDifference = Mathf.Abs(currentTime - instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1);
+            
+            float timingDifference = Mathf.Abs(currentTime - instContrlArray[SelectedInstIndex].instrumentBeatList[JudgeIndex].Item1);
 
             if (timingDifference <= PERFECT_RANGE) //perfect 타이밍
             {
@@ -185,7 +202,7 @@ public class BeatManager : MonoBehaviour
 
         }
         //fail check
-        else if(currentTime > instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1+BAD_RANGE)
+        else if(currentTime > instContrlArray[SelectedInstIndex].instrumentBeatList[JudgeIndex].Item1+BAD_RANGE)
         {
             Debug.Log($"judge index : {judgeIndex}\n current time : {currentTime}");
             Debug.Log("fail!");
@@ -193,8 +210,8 @@ public class BeatManager : MonoBehaviour
             JudgeIndex++;
         }
         
-        //score reset
-        if (currentTime>instContrlArray[selectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
+        //악보 처음 부터 시작
+        if (currentTime>instContrlArray[SelectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
         {
             playingIndex = 0; judgeIndex = 0; currentTime =0;
             currentTime-=beatMoveDuration;
@@ -202,6 +219,13 @@ public class BeatManager : MonoBehaviour
         }
         
         currentTime += Time.deltaTime;
+    }
+    
+    void ResetButtonScale()
+    {
+        // Reset the button scale after the animation is complete
+        judgeLineBeatBar.transform.DOScale(Vector3.one, 0.1f)
+            .SetEase(Ease.InQuad);
     }
     
     #region BeatBarPool
@@ -217,15 +241,15 @@ public class BeatManager : MonoBehaviour
 
         beatBarQueue.Enqueue(beatBar);
         PlayingIndex++;
-        return;
     }
+    
     void removeBeatBar()
     {
         try
         {
             var beatBar = beatBarQueue.Dequeue();
             ReturnBeatBarToPool(beatBar);
-            DOTween.Kill(beatBar.transform);
+            
         }
         catch (InvalidOperationException)
         {
@@ -257,12 +281,17 @@ public class BeatManager : MonoBehaviour
     public void ReturnBeatBarToPool(GameObject beatBar)
     {
         Debug.Log($"{beatBar.name} is return to pool");
+        DOTween.Kill(beatBar.transform);
         beatBar.SetActive(false);
+    }
+
+    public void ReturnAllBeatBarToPool()
+    {
+        foreach (var VARIABLE in _beatBarPool)
+        {
+            ReturnBeatBarToPool(VARIABLE);
+        }   
     }
     #endregion
     
-    private void AddScore(int score)
-    {
-        
-    }
 }
