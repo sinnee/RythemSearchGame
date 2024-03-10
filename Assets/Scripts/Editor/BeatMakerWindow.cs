@@ -145,7 +145,8 @@ public class BeatMakerWindow : EditorWindow
 					if (EditorGUI.EndChangeCheck())
 					{
 
-						_buttonNumber = _noteScore.Scale();
+						//_buttonNumber = _noteScore.Scale();
+						_buttonNumber = 12;
 						Debug.Log(_dropDownOptionList[_noteScore.selectedIndex]);
 					}
 				}
@@ -166,7 +167,7 @@ public class BeatMakerWindow : EditorWindow
 					//info
 					GUILayout.BeginVertical();
 					{
-						foreach (var item in _noteScore.items)
+						foreach (var item in _noteScore.instItems)
 						{
 							DrawInstInfo(item);
 						}
@@ -212,7 +213,7 @@ public class BeatMakerWindow : EditorWindow
 							}
 							GUILayout.EndHorizontal();
 							
-							foreach (var item in _noteScore.items)
+							foreach (var item in _noteScore.instItems)
 							{
 								DrawScore(item);
 							}
@@ -233,7 +234,11 @@ public class BeatMakerWindow : EditorWindow
 					GUILayout.FlexibleSpace();
 					if (GUILayout.Button("Add Score"))
 					{
-						_noteScore.items.Add(new NoteScoreItem());
+						var noteScoreItem = ScriptableObject.CreateInstance<NoteScoreItem>();
+						string filePath = "Assets/NoteScoreItem.asset"; // Assets 폴더 내에 파일 저장
+						AssetDatabase.CreateAsset(noteScoreItem, filePath);
+						_noteScore.instItems.Add(noteScoreItem);
+						
 					}
 					GUILayout.FlexibleSpace();
 
@@ -289,13 +294,15 @@ public class BeatMakerWindow : EditorWindow
 		watch.Start();
 		
 	}
+
 	void DrawInstInfo(NoteScoreItem item)
 	{
 		GUILayout.BeginHorizontal();
 		{
-		EditorGUILayout.LabelField("악기",GUILayout.Height(30), GUILayout.Width(50));
-		item.instrument = (GameObject)EditorGUILayout.ObjectField(item.instrument, typeof(GameObject), true, GUILayout.Height(30), GUILayout.Width(100));
-		GUILayout.FlexibleSpace();
+			EditorGUILayout.LabelField("악기", GUILayout.Height(30), GUILayout.Width(50));
+			item.instPrefab = (GameObject)EditorGUILayout.ObjectField(item.instPrefab, typeof(GameObject), true,
+				GUILayout.Height(30), GUILayout.Width(100));
+			GUILayout.FlexibleSpace();
 		}
 		GUILayout.EndHorizontal();
 	}
@@ -348,7 +355,7 @@ public class BeatMakerWindow : EditorWindow
 
 
 		//버그 리포트 : 현재 project에 있는 Score을 인스턴스를 가지고 있을 때 저장하면 오류 발생
-		if (string.IsNullOrEmpty(path) == false)
+		if (!string.IsNullOrEmpty(path))
 		{
 			AssetDatabase.CreateAsset(_noteScore, path.Substring(path.IndexOf("Assets", StringComparison.Ordinal)));
 
@@ -366,11 +373,9 @@ public class BeatMakerWindow : EditorWindow
 		_dropDownOptionArray = _dropDownOptionList.ToArray();
 
 		var path = EditorUtility.SaveFilePanel("Score 데이터 저장", Application.dataPath, "BeatScore.asset", "asset");
-		byte[] data = null;
-
 
 		//버그 리포트 : 현재 project에 있는 Score을 인스턴스를 가지고 있을 때 저장하면 오류 발생
-		if (string.IsNullOrEmpty(path) == false)
+		if (!string.IsNullOrEmpty(path))
 		{
 			AssetDatabase.CreateAsset(_noteScore, path.Substring(path.IndexOf("Assets", StringComparison.Ordinal)));
 
@@ -409,7 +414,7 @@ public class BeatMakerWindow : EditorWindow
 		List<Tuple<float, int>> instrumentBeatList = new List<Tuple<float, int>>();
 
 		float btnTime = _noteScore.CaluBtnTime();
-		foreach (var item in _noteScore.items)
+		foreach (var item in _noteScore.instItems)
 		{
 			instrumentBeatList.Clear();
 
@@ -420,7 +425,7 @@ public class BeatMakerWindow : EditorWindow
 
 			instrumentBeatList.Sort();
 
-			GameObject instrumentObject = Instantiate(item.instrument);
+			GameObject instrumentObject = Instantiate(item.instPrefab);
 			instrumentObject.GetComponent<InstrumentController>().instrumentBeatList = instrumentBeatList.ToList();
 
 
