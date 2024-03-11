@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using DG.Tweening;
 
 public class InstrumentController : MonoBehaviour, ISerializationCallbackReceiver
 {
@@ -38,6 +39,7 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 
 	#endregion
 	public List<Tuple<float, int>> instrumentBeatList = new List<Tuple<float, int>>();
+	public Ease easeType;
 
 	public int index;
 	// Start is called before the first frame update
@@ -49,5 +51,14 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 	void Update()
 	{
 		
+	}
+
+	public void ChangeInstrumentScale(float scaleFactor, float duration)
+	{
+		Vector3 targetSize = transform.localScale * scaleFactor;
+		transform.DOScale(targetSize, duration).SetEase(Ease.InOutSine).OnComplete(() =>
+		{
+			transform.DOScale(Vector3.one, duration).SetEase(Ease.InOutSine);
+		});
 	}
 }
