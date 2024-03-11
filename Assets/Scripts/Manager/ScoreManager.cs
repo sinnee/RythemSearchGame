@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviour
+public class ScoreManager
 {
     /// <summary>
     /// 스테이지당 점수 초기화->StageManager에서 사용
