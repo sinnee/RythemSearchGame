@@ -39,8 +39,11 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 
 	#endregion
 	public List<Tuple<float, int>> instrumentBeatList = new List<Tuple<float, int>>();
-	public Ease easeType;
-
+	public Ease firstEaseType;
+	public Ease secondEaseType;
+	public float transScale;
+	public float firstDuration;
+	public float secondDuration;
 	public int index;
 	// Start is called before the first frame update
 	void Start()
@@ -53,12 +56,17 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 		
 	}
 
-	public void ChangeInstrumentScale(float scaleFactor, float duration)
+	public void ChangeInstrumentScale()
 	{
-		Vector3 targetSize = transform.localScale * scaleFactor;
-		transform.DOScale(targetSize, duration).SetEase(Ease.InOutSine).OnComplete(() =>
+		// 입력 전 모든 움직임 정지
+		transform.DOKill();
+		// 최초상태로 복귀
+		transform.localScale = Vector3.one;
+		
+		Vector3 targetSize = transform.localScale * transScale;
+		transform.DOScale(targetSize, firstDuration).SetEase(firstEaseType).OnComplete(() =>
 		{
-			transform.DOScale(Vector3.one, duration).SetEase(Ease.InOutSine);
+			transform.DOScale(Vector3.one, secondDuration).SetEase(secondEaseType);
 		});
 	}
 }
