@@ -13,9 +13,10 @@
 | 이름 | 개인 깃허브 | 담당 역할 및 기능 |
 | ------ | ---------- | ------ |
 | 김성신 | https://github.com/sinnee | 프로그래밍(툴개발), PM |
-| 김명준 | https://github.com/mj991004 | 프로그래밍(게임 로직 개발), PD |
 | 박민호 | https://github.com/HEILAIPPAPPA | 프로그래밍(게임 로직 개발) |
-| 정혜선 |  https://github.com/HyeSunJeong | 기획, 디자인 |
+| 손준호 | https://github.com/junho1144 | 프로그래밍(클라이언트 개발) |
+| 정혜선 | https://github.com/HyeSunJeong | 기획, 디자인 |
+| 박주영 | | 아트 |
 <br/>
 
 ## 기술 스택
