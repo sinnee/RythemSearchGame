@@ -55,6 +55,7 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 	{
 		
 	}
+	
 
 	public void ChangeInstrumentScale()
 	{

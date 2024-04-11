@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public float dragSpeed = 10.0f; // 화면 움직임 속도
     public Ease cameraMoveEase;
     public BeatManager beatManager;
-
+	public CameraManager cameraManager;
 
     public static GameManager Instance
     {

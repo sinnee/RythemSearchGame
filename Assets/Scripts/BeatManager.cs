@@ -39,10 +39,21 @@ public class BeatManager : MonoBehaviour
     private float judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
     private bool isNothing=false;
-    
-    
 
+    public Ease easeType;
+    public float easeDuration;
+    public float transScale;
 
+    void ChangeInstrumentScale()
+    {
+        transform.localScale = Vector3.one;
+		
+        Vector3 targetSize = transform.localScale * transScale;
+        transform.DOScale(targetSize, easeDuration).SetEase(easeType).OnComplete(() =>
+        {
+            transform.DOKill();
+        });
+    }
 
     private int selectedInstIndex;
     public int SelectedInstIndex
@@ -293,5 +304,4 @@ public class BeatManager : MonoBehaviour
         }   
     }
     #endregion
-    
 }
