@@ -150,8 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d78cba146b568448af58e19cf774acd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testEase: 7
+  stageManager: {fileID: 0}
+  instrumentManager: {fileID: 0}
   dragSpeed: 50000
+  cameraMoveEase: 0
   beatManager: {fileID: 535015682}
 --- !u!4 &101130213
 Transform:
@@ -207,32 +209,6 @@ MonoBehaviour:
   - time: 0.5
     sort: 1
   - time: 0.75
-    sort: 1
-  - time: 0.875
-    sort: 1
-  - time: 1
-    sort: 1
-  - time: 1.125
-    sort: 1
-  - time: 1.3125
-    sort: 1
-  - time: 1.4375
-    sort: 1
-  - time: 1.75
-    sort: 1
-  - time: 2
-    sort: 1
-  - time: 2.125
-    sort: 1
-  - time: 2.375
-    sort: 1
-  - time: 2.75
-    sort: 1
-  - time: 3
-    sort: 1
-  - time: 3.3125
-    sort: 1
-  - time: 3.625
     sort: 1
   index: 0
 --- !u!135 &211321759
@@ -359,9 +335,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97edf8aaa55766c4698d178a049c1e59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  perfectRange: 0.1
-  normalRange: 0.2
-  badRange: 0.3
   judgeLineBeatBar: {fileID: 1605546068}
   beatBarPoolInCanvas: {fileID: 662212937}
   poolSize: 10
@@ -373,7 +346,6 @@ MonoBehaviour:
   uiRectTransform: {fileID: 1769744949}
   leftMargin: 200
   beatMoveDuration: 3
-  selectedInstIndex: 999
   initBeatBarPostion: {x: -173, y: 0, z: 0}
 --- !u!4 &535015683
 Transform:
@@ -637,8 +609,6 @@ MonoBehaviour:
   - time: 1.9375
     sort: 1
   - time: 2
-    sort: 1
-  - time: 2.9375
     sort: 1
   index: 0
 --- !u!135 &722454361
@@ -946,6 +916,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializedTuples:
+  - time: 1
+    sort: 1
+  - time: 2
+    sort: 1
+  - time: 3
+    sort: 1
+  - time: 4
+    sort: 1
   - time: 5
     sort: 1
   index: 0

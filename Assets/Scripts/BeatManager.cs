@@ -33,17 +33,15 @@ public class BeatManager : MonoBehaviour
     private InstrumentController[] instContrlArray;
     
     public Vector3 initBeatBarPostion = new Vector3(-173, 0, 0);
-    private Vector3 judgeLine;
-    private Vector3 endLine;
-    private float startJudgeDistance;
-    private float judgeEndDistance;
+    private Vector3 _judgeLine;
+    private Vector3 _endLine;
+    private float _startJudgeDistance;
+    private float _judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
-    private bool isNothing=false;
+    private bool _isNothing=false;
+    private bool _isSelectedInstrument;
+    private List<float> _playingBeatBarList = new List<float>();
     
-    
-
-
-
     private int selectedInstIndex;
     public int SelectedInstIndex
     {
@@ -51,6 +49,7 @@ public class BeatManager : MonoBehaviour
         set
         {
             ReturnAllBeatBarToPool();
+            CalcuPreCreateBeatBar();
             selectedInstIndex = value;
         }
     }
@@ -98,7 +97,7 @@ public class BeatManager : MonoBehaviour
     
     void Start()
     {
-        noteScore.MakeInstruments();
+        //noteScore.MakeInstruments();
         
         //pool init
         _beatBarPool = new List<GameObject>();
@@ -112,7 +111,6 @@ public class BeatManager : MonoBehaviour
         }
         
         //inst init
-        SelectedInstIndex = 999;
         taggedObjects = GameObject.FindGameObjectsWithTag("Instrument");
         instContrlArray = new InstrumentController[taggedObjects.Length];
         for (int i = 0; i < taggedObjects.Length; i++)
@@ -125,11 +123,11 @@ public class BeatManager : MonoBehaviour
         playingIndex = 0; judgeIndex = 0;
         currentTime -=beatMoveDuration;
         initBeatBarPostion += uiRectTransform.transform.position;
-        judgeLine = new Vector3(uiRectTransform.rect.width-leftMargin,uiRectTransform.transform.position.y,0);
-        endLine = new Vector3(uiRectTransform.rect.width+leftMargin,uiRectTransform.transform.position.y,0);
-        startJudgeDistance= Vector3.Distance(initBeatBarPostion, judgeLine);
-        judgeEndDistance = Vector3.Distance(judgeLine, endLine);
-        judgeLineBeatBar.transform.position = judgeLine;
+        _judgeLine = new Vector3(uiRectTransform.rect.width-leftMargin,uiRectTransform.transform.position.y,0);
+        _endLine = new Vector3(uiRectTransform.rect.width+leftMargin,uiRectTransform.transform.position.y,0);
+        _startJudgeDistance= Vector3.Distance(initBeatBarPostion, _judgeLine);
+        _judgeEndDistance = Vector3.Distance(_judgeLine, _endLine);
+        judgeLineBeatBar.transform.position = _judgeLine;
         
         isPlayingFinish = false;
         
@@ -137,14 +135,14 @@ public class BeatManager : MonoBehaviour
 
     void Update()
     {
-        if (SelectedInstIndex == 999)
+        if (!_isSelectedInstrument)
         {
             return;
         }
         
         //draw Line
-        Debug.DrawLine(judgeLine-Vector3.up*100,judgeLine+Vector3.up*100,Color.green);
-        Debug.DrawLine(endLine-Vector3.up*100,endLine+Vector3.up*100,Color.yellow);
+        Debug.DrawLine(_judgeLine-Vector3.up*100,_judgeLine+Vector3.up*100,Color.green);
+        Debug.DrawLine(_endLine-Vector3.up*100,_endLine+Vector3.up*100,Color.yellow);
         
         
         
@@ -156,7 +154,60 @@ public class BeatManager : MonoBehaviour
             CreateBeatBar();
             
         }
+
+        HandlePlayerInput();
         
+        //악보 처음 부터 시작
+        if (currentTime>instContrlArray[SelectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
+        {
+            playingIndex = 0; judgeIndex = 0; currentTime =0;
+            currentTime-=beatMoveDuration;
+            isPlayingFinish = false;
+        }
+        
+        currentTime += Time.deltaTime;
+    }
+
+    /// <summary>
+    /// 미리 생성해야되는 비트바 목록 확인
+    /// 비트바 이동 시간 때문에 비트바는 미리 생성되어야 한다
+    /// </summary>
+    private void CalcuPreCreateBeatBar()
+    {
+        _playingBeatBarList.Clear();
+        Queue<float> preBeatbarQueue = new Queue<float>();
+        float preMakeTime;
+        
+        foreach (var VARIABLE in instContrlArray[SelectedInstIndex].instrumentBeatList)
+        {
+            preMakeTime = VARIABLE.Item1 - beatMoveDuration;
+            _playingBeatBarList.Add(preMakeTime);
+            if (preMakeTime < 0)
+            {
+                preBeatbarQueue.Enqueue(noteScore.GetNotePlayingTime()+preMakeTime);
+            }
+        }
+
+        for (int i = 0; i < preBeatbarQueue.Count; i++)
+        {
+            _playingBeatBarList.Add(preBeatbarQueue.Dequeue());
+        }
+        Debug.Log("end");
+    }
+ 
+    /// <summary>
+    /// 몇번째 박을 연주해야되는지 셋팅
+    /// </summary>
+    private void SetPlayingIndex()
+    {
+        
+    }
+
+    /// <summary>
+    /// 플레이어 입력 처리
+    /// </summary>
+    private void HandlePlayerInput()
+    {
         //input check
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -190,14 +241,14 @@ public class BeatManager : MonoBehaviour
             else//NOTHING 타이밍, 버튼 클리 시 판정 영역에 도달조차 안한 단계 
             {
                 Debug.Log("Nothing");
-                isNothing = true;
+                _isNothing = true;
             }
 
-            if (!isNothing)
+            if (!_isNothing)
             {
                 removeBeatBar();
                 JudgeIndex++;
-                isNothing = false;
+                _isNothing = false;
             }
 
         }
@@ -209,23 +260,20 @@ public class BeatManager : MonoBehaviour
             removeBeatBar();
             JudgeIndex++;
         }
-        
-        //악보 처음 부터 시작
-        if (currentTime>instContrlArray[SelectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
-        {
-            playingIndex = 0; judgeIndex = 0; currentTime =0;
-            currentTime-=beatMoveDuration;
-            isPlayingFinish = false;
-        }
-        
-        currentTime += Time.deltaTime;
     }
     
     void ResetButtonScale()
     {
         // Reset the button scale after the animation is complete
-        judgeLineBeatBar.transform.DOScale(Vector3.one, 0.1f)
-            .SetEase(Ease.InQuad);
+        judgeLineBeatBar.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.InQuad);
+    }
+
+    /// <summary>
+    /// 현재 재생 중인 악보의 시간을 확인하여 앞으로 재생되야할 playingIndex 값을 설정한다.
+    /// </summary>
+    private void SetCurrentPlayingIndex()
+    {
+        
     }
     
     #region BeatBarPool
@@ -233,10 +281,10 @@ public class BeatManager : MonoBehaviour
     {
         GameObject beatBar=GetBeatBarFromPool(initBeatBarPostion);
         
-        var tween = beatBar.transform.DOMove(judgeLine, beatMoveDuration).SetEase(Ease.Linear)
+        var tween = beatBar.transform.DOMove(_judgeLine, beatMoveDuration).SetEase(Ease.Linear)
             .OnComplete(() =>
             {
-                beatBar.transform.DOMove(endLine, ((judgeEndDistance*beatMoveDuration)/startJudgeDistance)).SetEase(Ease.Linear);
+                beatBar.transform.DOMove(_endLine, ((_judgeEndDistance*beatMoveDuration)/_startJudgeDistance)).SetEase(Ease.Linear);
             });
 
         beatBarQueue.Enqueue(beatBar);
