@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Security.Policy;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class BeatManager : MonoBehaviour
 {
