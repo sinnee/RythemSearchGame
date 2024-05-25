@@ -65,6 +65,7 @@ public class GameManager : MonoBehaviour
             {
                 Debug.Log("hit");
                 beatManager.SelectedInstIndex = hit.transform.gameObject.GetComponent<InstrumentController>().index;
+                beatManager._isSelectedInstrument = true;
                 Camera.main.transform.DOMove(hit.transform.position + Vector3.back * 10, 1.0f).SetEase(cameraMoveEase);
             }
 

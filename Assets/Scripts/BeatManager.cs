@@ -39,7 +39,7 @@ public class BeatManager : MonoBehaviour
     private float _judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
     private bool _isNothing=false;
-    private bool _isSelectedInstrument;
+    public bool _isSelectedInstrument;
     private List<float> _playingBeatBarList = new List<float>();
     
     private int selectedInstIndex;
@@ -148,7 +148,7 @@ public class BeatManager : MonoBehaviour
         
         Debug.Log($"selectedInstIndex : {SelectedInstIndex} / playingIndex : {playingIndex}");
         //Create Beat!
-        if ((currentTime>=((instContrlArray[SelectedInstIndex].instrumentBeatList[PlayingIndex].Item1)-beatMoveDuration))&&!isPlayingFinish)
+        if ((currentTime>=_playingBeatBarList[playingIndex])&&!isPlayingFinish)
         {
             //Debug.Log($"real time is {currentTime} \nplayingIndex : {playingIndex} is playing when {instContrlArray[0].instrumentBeatList[PlayingIndex].Item1} ");
             CreateBeatBar();
@@ -158,7 +158,7 @@ public class BeatManager : MonoBehaviour
         HandlePlayerInput();
         
         //악보 처음 부터 시작
-        if (currentTime>instContrlArray[SelectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
+        if (currentTime>_playingBeatBarList[playingIndex]+BAD_RANGE)
         {
             playingIndex = 0; judgeIndex = 0; currentTime =0;
             currentTime-=beatMoveDuration;
@@ -182,7 +182,7 @@ public class BeatManager : MonoBehaviour
         {
             preMakeTime = VARIABLE.Item1 - beatMoveDuration;
             _playingBeatBarList.Add(preMakeTime);
-            if (preMakeTime < 0)
+            if (preBeatbarQueue.Count != 0 && preMakeTime < 0)
             {
                 preBeatbarQueue.Enqueue(noteScore.GetNotePlayingTime()+preMakeTime);
             }
@@ -192,7 +192,6 @@ public class BeatManager : MonoBehaviour
         {
             _playingBeatBarList.Add(preBeatbarQueue.Dequeue());
         }
-        Debug.Log("end");
     }
  
     /// <summary>
@@ -216,7 +215,7 @@ public class BeatManager : MonoBehaviour
                 .OnComplete(() => ResetButtonScale());
             
             
-            float timingDifference = Mathf.Abs(currentTime - instContrlArray[SelectedInstIndex].instrumentBeatList[JudgeIndex].Item1);
+            float timingDifference = Mathf.Abs(currentTime - _playingBeatBarList[playingIndex]);
 
             if (timingDifference <= PERFECT_RANGE) //perfect 타이밍
             {
@@ -253,7 +252,7 @@ public class BeatManager : MonoBehaviour
 
         }
         //fail check
-        else if(currentTime > instContrlArray[SelectedInstIndex].instrumentBeatList[JudgeIndex].Item1+BAD_RANGE)
+        else if(currentTime > _playingBeatBarList[playingIndex]+BAD_RANGE)
         {
             Debug.Log($"judge index : {judgeIndex}\n current time : {currentTime}");
             Debug.Log("fail!");
