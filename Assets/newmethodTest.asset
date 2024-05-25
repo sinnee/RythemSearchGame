@@ -10,17 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdaf4e28f8fba2444843586b245cb735, type: 3}
-  m_Name: SampleBeatScore
+  m_Name: newmethodTest
   m_EditorClassIdentifier: 
-  selectedIndex: 3
-  instItems:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 11400000, guid: da3c8f3290735bc4489e4b96a3937bd2, type: 2}
-  BarCountValue: 2
-  NoteCountValue: 2
+  selectedIndex: 0
+  instItems: []
+  BarCountValue: 0
+  NoteCountValue: 0

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 [CreateAssetMenu(menuName = "BeatMaker/Create Score")]
@@ -15,7 +16,7 @@ public class NoteScore : ScriptableObject
     public int selectedIndex; 
 
 
-    public List<NoteScoreItem> items=new List<NoteScoreItem>();
+    public List<NoteScoreItem> instItems=new List<NoteScoreItem>();
     private int bpmValue;
     public int BPMValue
     {
@@ -68,5 +69,24 @@ public class NoteScore : ScriptableObject
     public float CaluBtnTime()
     {
         return (60f / BPMValue) / NOTE_SEPARATION;
+    }
+
+    /// <summary>
+    /// 악기 오브젝트 생성
+    /// </summary>
+    public void MakeInstruments()
+    {
+        foreach (var VARIABLE in instItems)
+        {
+            VARIABLE.MakeInstrument();
+        }
+    }
+
+    /// <summary>
+    /// 악보 연주 시간 반환
+    /// </summary>
+    public float GetNotePlayingTime()
+    {
+        return CaluBtnTime() * NoteCountValue * BarCountValue;
     }
 }
