@@ -23,30 +23,42 @@ public class BeatManager : MonoBehaviour
     public RectTransform uiRectTransform;
     public float leftMargin;
     public float beatMoveDuration;
-    public int selectedInstIndex;
+    public NoteScore noteScore;
 
     private InstrumentController[] instContrlArray;
     
     public Vector3 initBeatBarPostion = new Vector3(-173, 0, 0);
-    private Vector3 judgeLine;
-    private Vector3 endLine;
-    private float startJudgeDistance;
-    private float judgeEndDistance;
+    private Vector3 _judgeLine;
+    private Vector3 _endLine;
+    private float _startJudgeDistance;
+    private float _judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
-    private bool isNothing=false;
+    private bool _isNothing=false;
+    public bool _isSelectedInstrument;
+    private List<float> _playingBeatBarList = new List<float>();
+    
+    private int selectedInstIndex;
+    public int SelectedInstIndex
+    {
+        get => selectedInstIndex;
+        set
+        {
+            ReturnAllBeatBarToPool();
+            CalcuPreCreateBeatBar();
+            selectedInstIndex = value;
+        }
+    }
 
     private int playingIndex;
     public int PlayingIndex
     {
-        get
-        {
-            return playingIndex;
-        }
+        get => playingIndex;
         set
         {
-            if (value>instContrlArray[0].instrumentBeatList.Count-1)
+            if (value>instContrlArray[SelectedInstIndex].instrumentBeatList.Count-1)
             {
-                playingIndex = instContrlArray[0].instrumentBeatList.Count-1;
+                //초기화가 될 때까지 마지막 index 유지
+                playingIndex = instContrlArray[SelectedInstIndex].instrumentBeatList.Count-1;
                 isPlayingFinish = true;
             }
             else
@@ -76,9 +88,12 @@ public class BeatManager : MonoBehaviour
         }
     }
     float currentTime;
-    bool isPlayingFinish = false;
+    bool isPlayingFinish;
+    
     void Start()
     {
+        //noteScore.MakeInstruments();
+        
         //pool init
         _beatBarPool = new List<GameObject>();
         for (int i = 0; i < poolSize; i++)
@@ -91,7 +106,6 @@ public class BeatManager : MonoBehaviour
         }
         
         //inst init
-        selectedInstIndex = 999;
         taggedObjects = GameObject.FindGameObjectsWithTag("Instrument");
         instContrlArray = new InstrumentController[taggedObjects.Length];
         for (int i = 0; i < taggedObjects.Length; i++)
@@ -104,46 +118,99 @@ public class BeatManager : MonoBehaviour
         playingIndex = 0; judgeIndex = 0;
         currentTime -=beatMoveDuration;
         initBeatBarPostion += uiRectTransform.transform.position;
-        judgeLine = new Vector3(uiRectTransform.rect.width-leftMargin,uiRectTransform.transform.position.y,0);
-        endLine = new Vector3(uiRectTransform.rect.width+leftMargin,uiRectTransform.transform.position.y,0);
-        startJudgeDistance= Vector3.Distance(initBeatBarPostion, judgeLine);
-        judgeEndDistance = Vector3.Distance(judgeLine, endLine);
-        judgeLineBeatBar.transform.position = judgeLine;
+        _judgeLine = new Vector3(uiRectTransform.rect.width-leftMargin,uiRectTransform.transform.position.y,0);
+        _endLine = new Vector3(uiRectTransform.rect.width+leftMargin,uiRectTransform.transform.position.y,0);
+        _startJudgeDistance= Vector3.Distance(initBeatBarPostion, _judgeLine);
+        _judgeEndDistance = Vector3.Distance(_judgeLine, _endLine);
+        judgeLineBeatBar.transform.position = _judgeLine;
         
         isPlayingFinish = false;
         
     }
 
-    
-    
-    // Update is called once per frame
     void Update()
     {
-        if (selectedInstIndex == 999)
+        if (!_isSelectedInstrument)
         {
             return;
         }
         
         //draw Line
-        Debug.DrawLine(judgeLine-Vector3.up*100,judgeLine+Vector3.up*100,Color.green);
-        Debug.DrawLine(endLine-Vector3.up*100,endLine+Vector3.up*100,Color.yellow);
+        Debug.DrawLine(_judgeLine-Vector3.up*100,_judgeLine+Vector3.up*100,Color.green);
+        Debug.DrawLine(_endLine-Vector3.up*100,_endLine+Vector3.up*100,Color.yellow);
         
         
         
+        Debug.Log($"selectedInstIndex : {SelectedInstIndex} / playingIndex : {playingIndex}");
         //Create Beat!
-        if ((currentTime>=((instContrlArray[selectedInstIndex].instrumentBeatList[PlayingIndex].Item1)-beatMoveDuration))&&!isPlayingFinish)
+        if ((currentTime>=_playingBeatBarList[playingIndex])&&!isPlayingFinish)
         {
             //Debug.Log($"real time is {currentTime} \nplayingIndex : {playingIndex} is playing when {instContrlArray[0].instrumentBeatList[PlayingIndex].Item1} ");
             CreateBeatBar();
             
         }
+
+        HandlePlayerInput();
         
+        //악보 처음 부터 시작
+        if (currentTime>_playingBeatBarList[playingIndex]+BAD_RANGE)
+        {
+            playingIndex = 0; judgeIndex = 0; currentTime =0;
+            currentTime-=beatMoveDuration;
+            isPlayingFinish = false;
+        }
+        
+        currentTime += Time.deltaTime;
+    }
+
+    /// <summary>
+    /// 미리 생성해야되는 비트바 목록 확인
+    /// 비트바 이동 시간 때문에 비트바는 미리 생성되어야 한다
+    /// </summary>
+    private void CalcuPreCreateBeatBar()
+    {
+        _playingBeatBarList.Clear();
+        Queue<float> preBeatbarQueue = new Queue<float>();
+        float preMakeTime;
+        
+        foreach (var VARIABLE in instContrlArray[SelectedInstIndex].instrumentBeatList)
+        {
+            preMakeTime = VARIABLE.Item1 - beatMoveDuration;
+            _playingBeatBarList.Add(preMakeTime);
+            if (preBeatbarQueue.Count != 0 && preMakeTime < 0)
+            {
+                preBeatbarQueue.Enqueue(noteScore.GetNotePlayingTime()+preMakeTime);
+            }
+        }
+
+        for (int i = 0; i < preBeatbarQueue.Count; i++)
+        {
+            _playingBeatBarList.Add(preBeatbarQueue.Dequeue());
+        }
+    }
+ 
+    /// <summary>
+    /// 몇번째 박을 연주해야되는지 셋팅
+    /// </summary>
+    private void SetPlayingIndex()
+    {
+        
+    }
+
+    /// <summary>
+    /// 플레이어 입력 처리
+    /// </summary>
+    private void HandlePlayerInput()
+    {
         //input check
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            judgeLineBeatBar.transform.DOScale(1.5f, 0.5f).From();
+            judgeLineBeatBar.transform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), 0.1f)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() => ResetButtonScale());
             
-            float timingDifference = Mathf.Abs(currentTime - instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1);
+            
+            float timingDifference = Mathf.Abs(currentTime - _playingBeatBarList[playingIndex]);
 
             if (timingDifference <= PERFECT_RANGE) //perfect 타이밍
             {
@@ -168,35 +235,39 @@ public class BeatManager : MonoBehaviour
             else//NOTHING 타이밍, 버튼 클리 시 판정 영역에 도달조차 안한 단계 
             {
                 Debug.Log("Nothing");
-                isNothing = true;
+                _isNothing = true;
             }
 
-            if (!isNothing)
+            if (!_isNothing)
             {
                 removeBeatBar();
                 JudgeIndex++;
-                isNothing = false;
+                _isNothing = false;
             }
 
         }
         //fail check
-        else if(currentTime > instContrlArray[selectedInstIndex].instrumentBeatList[JudgeIndex].Item1+BAD_RANGE)
+        else if(currentTime > _playingBeatBarList[playingIndex]+BAD_RANGE)
         {
             Debug.Log($"judge index : {judgeIndex}\n current time : {currentTime}");
             Debug.Log("fail!");
             removeBeatBar();
             JudgeIndex++;
         }
+    }
+    
+    void ResetButtonScale()
+    {
+        // Reset the button scale after the animation is complete
+        judgeLineBeatBar.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.InQuad);
+    }
+
+    /// <summary>
+    /// 현재 재생 중인 악보의 시간을 확인하여 앞으로 재생되야할 playingIndex 값을 설정한다.
+    /// </summary>
+    private void SetCurrentPlayingIndex()
+    {
         
-        //score reset
-        if (currentTime>instContrlArray[selectedInstIndex].instrumentBeatList[PlayingIndex].Item1+BAD_RANGE)
-        {
-            playingIndex = 0; judgeIndex = 0; currentTime =0;
-            currentTime-=beatMoveDuration;
-            isPlayingFinish = false;
-        }
-        
-        currentTime += Time.deltaTime;
     }
     
     #region BeatBarPool
@@ -204,23 +275,23 @@ public class BeatManager : MonoBehaviour
     {
         GameObject beatBar=GetBeatBarFromPool(initBeatBarPostion);
         
-        var tween = beatBar.transform.DOMove(judgeLine, beatMoveDuration).SetEase(Ease.Linear)
+        var tween = beatBar.transform.DOMove(_judgeLine, beatMoveDuration).SetEase(Ease.Linear)
             .OnComplete(() =>
             {
-                beatBar.transform.DOMove(endLine, ((judgeEndDistance*beatMoveDuration)/startJudgeDistance)).SetEase(Ease.Linear);
+                beatBar.transform.DOMove(_endLine, ((_judgeEndDistance*beatMoveDuration)/_startJudgeDistance)).SetEase(Ease.Linear);
             });
 
         beatBarQueue.Enqueue(beatBar);
         PlayingIndex++;
-        return;
     }
+    
     void removeBeatBar()
     {
         try
         {
             var beatBar = beatBarQueue.Dequeue();
             ReturnBeatBarToPool(beatBar);
-            DOTween.Kill(beatBar.transform);
+            
         }
         catch (InvalidOperationException)
         {
@@ -252,12 +323,17 @@ public class BeatManager : MonoBehaviour
     public void ReturnBeatBarToPool(GameObject beatBar)
     {
         Debug.Log($"{beatBar.name} is return to pool");
+        DOTween.Kill(beatBar.transform);
         beatBar.SetActive(false);
+    }
+
+    public void ReturnAllBeatBarToPool()
+    {
+        foreach (var VARIABLE in _beatBarPool)
+        {
+            ReturnBeatBarToPool(VARIABLE);
+        }   
     }
     #endregion
     
-    private void AddScore(int score)
-    {
-        
-    }
 }
