@@ -45,6 +45,9 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 	public float firstDuration;
 	public float secondDuration;
 	public int index;
+
+	[SerializeField] private Animator anim;
+	
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -53,7 +56,7 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 	// Update is called once per frame
 	void Update()
 	{
-		
+
 	}
 	
 
@@ -69,5 +72,12 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 		{
 			transform.DOScale(Vector3.one, secondDuration).SetEase(secondEaseType);
 		});
+	}
+
+	public void TouchMoveAnimation()
+	{
+		GameManager.Instance.cameraManager.MoveToTarget(transform.position);
+		//화면 이동 후, 터치 애니메이션 실행
+		//anim.()
 	}
 }
