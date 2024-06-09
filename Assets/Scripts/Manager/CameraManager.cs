@@ -5,43 +5,53 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
     public float camMoveSpeed = 0.125f;
+    public float dragSpeed = 0.004f;
 
-    private bool isCamMove;
+    [SerializeField]
+    private bool isCamMove = false;
     private Vector3 dragOrigin;
+    private float fixedZ = -10;
+    
 
     //드래그 이동
     void Update()
     {
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
 
-            switch (touch.phase)
-            {
-                case TouchPhase.Began:
-                    dragOrigin = Camera.main.ScreenToWorldPoint(touch.position);
-                    dragOrigin.z = 0;
-                    break;
-                
-                case TouchPhase.Moved:
-                    Vector3 currentPosition = Camera.main.ScreenToWorldPoint(touch.position);
-                    currentPosition.z = 0;
-                    Vector3 difference = dragOrigin - currentPosition;
-
-                    transform.position += difference;
-                    break;
-                    
-            }
-        }
     }
     
     //카메라 위치를 천천히 이동 (특정 악기 터치 시)
-    //InstrumentController에서 호출해 사용, isCamMove 변수 사용하여 이미 이동중이라면 함수가 호출되지 않도록
+    //isCamMove 변수 사용하여 이미 이동중이라면 함수가 호출되지 않도록
     public void MoveToTarget(Vector3 targetPosition)
     {
-        Vector3 tempPosition = targetPosition;
-        Vector3 moveCamPosition = Vector3.Lerp(transform.position, tempPosition, camMoveSpeed);
+        if (!isCamMove)
+            StartCoroutine(MoveToPosition(targetPosition));
+    }
 
-        transform.position = moveCamPosition;
+    private IEnumerator MoveToPosition(Vector3 targetPosition)
+    {
+        isCamMove = true;
+        targetPosition.z = fixedZ; //z축고정하기
+        while (Vector3.Distance(transform.position, targetPosition) > 0.001f)
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPosition, camMoveSpeed);
+            transform.position = new Vector3(transform.position.x, transform.position.y, fixedZ);
+            yield return null;
+        }
+
+        transform.position = new Vector3(targetPosition.x, targetPosition.y, fixedZ);
+        isCamMove = false;
+    }
+
+    //카메라 드래그 이동
+    public void DragCamera(Vector2 dragPosition)
+    {
+        if (isCamMove)
+            return;
+        //드래그 방향의 반대로 카메라를 이동
+        Vector3 dragDirection = new Vector3(-dragPosition.x, -dragPosition.y, 0);
+
+        Vector3 newPosition = transform.position + dragDirection * dragSpeed;
+        newPosition.z = fixedZ; // 새로운 위치의 z축을 고정
+        transform.position = newPosition;
     }
 }

@@ -74,10 +74,8 @@ public class InstrumentController : MonoBehaviour, ISerializationCallbackReceive
 		});
 	}
 
-	public void TouchMoveAnimation()
+	public void PlayTouchAnimation()
 	{
-		GameManager.Instance.cameraManager.MoveToTarget(transform.position);
-		//화면 이동 후, 터치 애니메이션 실행
-		//anim.()
+		
 	}
 }
