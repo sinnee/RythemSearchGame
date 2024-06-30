@@ -33,6 +33,24 @@ public class BeatManager : MonoBehaviour
     private float _startJudgeDistance;
     private float _judgeEndDistance;
     private Queue<GameObject> beatBarQueue=new Queue<GameObject>();
+    private bool isNothing=false;
+
+    public Ease easeType;
+    public float easeDuration;
+    public float transScale;
+
+    void ChangeInstrumentScale()
+    {
+        transform.localScale = Vector3.one;
+		
+        Vector3 targetSize = transform.localScale * transScale;
+        transform.DOScale(targetSize, easeDuration).SetEase(easeType).OnComplete(() =>
+        {
+            transform.DOKill();
+        });
+    }
+
+
     private bool _isNothing=false;
     public bool _isSelectedInstrument;
     private List<float> _playingBeatBarList = new List<float>();
@@ -335,5 +353,4 @@ public class BeatManager : MonoBehaviour
         }   
     }
     #endregion
-    
 }

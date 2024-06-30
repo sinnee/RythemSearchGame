@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public float dragSpeed = 10.0f; // 화면 움직임 속도
     public Ease cameraMoveEase;
     public BeatManager beatManager;
-
+    public CameraManager cameraManager;
 
     public static GameManager Instance
     {
@@ -51,25 +51,5 @@ public class GameManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-    }
-
-    void Update()
-    {
-        //악기 선택 시 해당 위치 카메라 이동
-        if (Input.GetMouseButtonDown(0))
-        {
-            //checking hit inst
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                Debug.Log("hit");
-                beatManager.SelectedInstIndex = hit.transform.gameObject.GetComponent<InstrumentController>().index;
-                beatManager._isSelectedInstrument = true;
-                Camera.main.transform.DOMove(hit.transform.position + Vector3.back * 10, 1.0f).SetEase(cameraMoveEase);
-            }
-
-            firstClickPoint = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-        }
     }
 }
