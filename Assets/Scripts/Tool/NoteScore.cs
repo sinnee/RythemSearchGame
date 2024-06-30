@@ -81,4 +81,12 @@ public class NoteScore : ScriptableObject
             VARIABLE.MakeInstrument();
         }
     }
+
+    /// <summary>
+    /// 악보 연주 시간 반환
+    /// </summary>
+    public float GetNotePlayingTime()
+    {
+        return CaluBtnTime() * NoteCountValue * BarCountValue;
+    }
 }
